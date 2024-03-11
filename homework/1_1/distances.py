@@ -8,19 +8,22 @@ def hamming_distance(a, b):
 
 def levenshtein_distance(a, b):
     n, m = len(a), len(b)
-    d = [[0] * m for _ in range(n)]
+    if n < m:
+        n, m = m, n
+        a, b = b, a
+
+    d_prev, d_cur = list(range(m + 1)), [0] * (m + 1)
+
     for i in range(n):
-        d[i][0] = d[i - 1][0] + 1
-    for j in range(m):
-        d[0][j] = d[0][j - 1] + 1
-    for i in range(n):
+        d_cur[0] = d_prev[0] + 1
         for j in range(m):
             if a[i] != b[j]:
-                d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1,
-                              d[i - 1][j - 1] + 1)
+                d_cur[j + 1] = min(d_prev[j + 1] + 1, d_cur[j] + 1,
+                              d_prev[j] + 1)
             else:
-                d[i][j] = d[i - 1][j - 1]
-    return d[n - 1][m - 1]
+                d_cur[j + 1] = d_prev[j]
+        d_prev, d_cur = d_cur, d_prev
+    return d_prev[-1]
 
 
 def closest_substring(pattern, s):
